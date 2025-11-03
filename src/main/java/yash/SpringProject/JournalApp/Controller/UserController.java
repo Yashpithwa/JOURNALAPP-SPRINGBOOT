@@ -1,46 +1,61 @@
 package yash.SpringProject.JournalApp.Controller;
 
-import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
-import yash.SpringProject.JournalApp.Entity.JournalEntry;
 import yash.SpringProject.JournalApp.Entity.User;
 import yash.SpringProject.JournalApp.service.UserService;
-import yash.SpringProject.JournalApp.service.journalEntryService;
 
-import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/user")
-
 public class UserController {
 
-     @Autowired
-     private UserService userService;
+    @Autowired
+    private UserService userService;
 
-     @GetMapping
-     public List<User> gettAllUsers(){
-         return userService.getAll();
+    // GET /user - get all users (requires authentication)
+    @GetMapping
+    public List<User> getAllUsers() {
+        return userService.getAll();
     }
+
+
+
+    // POST /user - create a new user
     @PostMapping
-    public void createUser(@RequestBody User user){
-         userService.saveEntry(user);
+    public void createUser(@RequestBody User user) {
+        userService.saveEntry(user);
     }
 
-    @PutMapping("/{userName}")
-    public ResponseEntity<?> updateUser(@RequestBody User user,@PathVariable String userName){
-         User userIndB = userService.findByUserName(userName);
-         if(userIndB!=null){
-             userIndB.setUserName(user.getUserName());
-             userIndB.setPassword(user.getPassword());
-             userService.saveEntry(userIndB);
-         }
-         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+
+    public User findByUserName(String userName){
+        return userService.findByUserName(userName);
     }
+    // PUT /user - update logged-in user's info
+    // PUT /user - update logged-in user's info
+    @PutMapping
+    public ResponseEntity<?> updateUser(@RequestBody User user) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String loggedInUserName = authentication.getName();
+
+        User userInDb = userService.findByUserName(loggedInUserName);
+        if (userInDb != null) {
+            // update allowed fields
+            if (user.getUserName() != null) userInDb.setUserName(user.getUserName());
+            if (user.getPassword() != null && !user.getPassword().isBlank()) userInDb.setPassword(user.getPassword());
+            userService.saveEntry(userInDb);
+            return ResponseEntity.noContent().build();
+        } else {
+            return new ResponseEntity<>("User not found", HttpStatus.NOT_FOUND);
+        }
+
+    }
+
+
 
 }
-
