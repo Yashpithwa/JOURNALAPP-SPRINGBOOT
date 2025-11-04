@@ -30,7 +30,15 @@ public class UserService {
         }
         return userRepository.save(user);
     }
-
+    public User saveAdmin(User user) {
+        if (user.getPassword() != null) {
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
+        }
+        if (user.getRoles() == null || user.getRoles().isEmpty()) {
+            user.setRoles(Arrays.asList("USER","ADMIN"));
+        }
+        return userRepository.save(user);
+    }
     public void saveUser(User user) {
         userRepository.save(user);
     }

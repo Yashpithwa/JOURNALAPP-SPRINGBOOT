@@ -43,6 +43,7 @@ public class SpringSecurity {
                         .requestMatchers(HttpMethod.POST, "/user").permitAll() // allow signup
                         .requestMatchers("/journal/**").authenticated()
                         .requestMatchers("/user/**").authenticated()
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().permitAll()
                 )
                 // 🧠 this enables Basic Auth instead of form login
