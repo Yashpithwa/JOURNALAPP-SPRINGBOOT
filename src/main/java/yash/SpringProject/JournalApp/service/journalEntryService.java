@@ -1,6 +1,8 @@
 package yash.SpringProject.JournalApp.service;
 
 import org.bson.types.ObjectId;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import yash.SpringProject.JournalApp.Entity.JournalEntry;
@@ -8,6 +10,7 @@ import yash.SpringProject.JournalApp.Entity.User;
 import yash.SpringProject.JournalApp.repositiory.JournalEntryRepositiory;
 import yash.SpringProject.JournalApp.repositiory.UserRepository;
 
+import javax.print.attribute.standard.JobHoldUntil;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -23,6 +26,8 @@ public class journalEntryService {
 
     @Autowired
     private UserService userService;
+    
+   private static final  Logger logger  = LoggerFactory.getLogger(journalEntryService.class);
 
     public JournalEntry saveEntry(JournalEntry journalEntry, String userName) {
         User user = userService.findByUserName(userName);
@@ -59,3 +64,4 @@ public class journalEntryService {
         journalEntryRepository.deleteById(id);
     }
 }
+
